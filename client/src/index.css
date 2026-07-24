@@ -1,0 +1,575 @@
+/* ==========================================================================
+   1. RESET
+   ========================================================================== */
+*,
+*::before,
+*::after {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  font-family: "Inter", "Segoe UI", system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  background-color: var(--color-bg);
+  color: var(--color-text);
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+/* ==========================================================================
+   2. VARIÁVEIS DE TEMA - LIGHT (padrão)
+   ========================================================================== */
+:root {
+  /* Marca */
+  --color-primary: #0acf83;
+  --color-primary-hover: #09b975;
+  --color-danger: #f5487f;
+  --color-danger-soft: #fde8ee;
+
+  /* Superfícies */
+  --color-bg: #f4f6f8;
+  --color-surface: #ffffff;
+  --color-surface-alt: #f7f8fa;
+  --color-border: #e4e7eb;
+
+  /* Texto */
+  --color-text: #1c1f26;
+  --color-text-muted: #6b7280;
+  --color-text-inverse: #ffffff;
+
+  /* Gráficos */
+  --chart-income: #0acf83;
+  --chart-expense: #f5487f;
+  --chart-slice-1: #0acf83;
+  --chart-slice-2: #3ba7f0;
+  --chart-slice-3: #f5a623;
+  --chart-slice-4: #f5487f;
+
+  /* Layout */
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --shadow-card: 0 1px 3px rgba(16, 24, 40, 0.06), 0 1px 2px rgba(16, 24, 40, 0.04);
+}
+
+/* ==========================================================================
+   3. VARIÁVEIS DE TEMA - DARK
+   ========================================================================== */
+[data-theme="dark"] {
+  --color-bg: #111318;
+  --color-surface: #1a1d24;
+  --color-surface-alt: #20242c;
+  --color-border: #2a2f3a;
+
+  --color-text: #f2f3f5;
+  --color-text-muted: #9aa1ac;
+
+  --shadow-card: 0 1px 3px rgba(0, 0, 0, 0.4);
+}
+
+/* ==========================================================================
+   4. LAYOUT GERAL DO DASHBOARD
+   ========================================================================== */
+.app-layout {
+  display: grid;
+  grid-template-columns: 220px 1fr;
+  min-height: 100vh;
+}
+
+.dashboard-content {
+  padding: 24px 32px;
+}
+
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+  margin-top: 20px;
+}
+
+.dashboard-grid > * {
+  grid-column: span 1;
+}
+
+@media (max-width: 1024px) {
+  .app-layout {
+    grid-template-columns: 1fr;
+  }
+  .dashboard-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ==========================================================================
+   5. CARD (bloco base reutilizado por todos os componentes do dashboard)
+   ========================================================================== */
+.card {
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-card);
+  padding: 20px;
+}
+
+.card__title {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+.card__subtitle {
+  font-size: 12px;
+  color: var(--color-text-muted);
+  margin-top: 2px;
+}
+
+/* ==========================================================================
+   6. BOTÕES
+   ========================================================================== */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border: none;
+  border-radius: var(--radius-md);
+  padding: 10px 16px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.15s ease, transform 0.1s ease;
+}
+
+.btn:active {
+  transform: scale(0.98);
+}
+
+.btn--primary {
+  background-color: var(--color-primary);
+  color: var(--color-text-inverse);
+}
+
+.btn--primary:hover {
+  background-color: var(--color-primary-hover);
+}
+
+.btn--ghost {
+  background-color: transparent;
+  color: var(--color-text);
+  border: 1px solid var(--color-border);
+}
+
+/* ==========================================================================
+   7. SIDEBAR
+   ========================================================================== */
+.sidebar {
+  background-color: var(--color-surface);
+  border-right: 1px solid var(--color-border);
+  padding: 24px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.sidebar__logo {
+  font-weight: 700;
+  font-size: 18px;
+  color: var(--color-primary);
+  margin-bottom: 24px;
+}
+
+.sidebar__item {
+  padding: 10px 12px;
+  border-radius: var(--radius-md);
+  font-size: 14px;
+  color: var(--color-text-muted);
+  cursor: pointer;
+}
+
+.sidebar__item:hover {
+  background-color: var(--color-surface-alt);
+  color: var(--color-text);
+}
+
+.sidebar__item--active {
+  background-color: var(--color-danger-soft);
+  color: var(--color-primary);
+  font-weight: 600;
+}
+
+/* ==========================================================================
+   8. TOGGLE DE DARK MODE
+   ========================================================================== */
+.theme-toggle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background-color: var(--color-surface-alt);
+  border: 1px solid var(--color-border);
+  border-radius: 999px;
+  padding: 6px 12px;
+  cursor: pointer;
+  font-size: 13px;
+  color: var(--color-text);
+}
+
+/* ==========================================================================
+   9. TABELA (saldos de caixa, lista de contas)
+   ========================================================================== */
+.balance-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+
+.balance-table th {
+  text-align: right;
+  font-weight: 500;
+  color: var(--color-text-muted);
+  padding-bottom: 8px;
+}
+
+.balance-table th:first-child,
+.balance-table td:first-child {
+  text-align: left;
+}
+
+.balance-table td {
+  padding: 8px 0;
+  border-top: 1px solid var(--color-border);
+}
+
+.balance-table tfoot td {
+  font-weight: 700;
+  border-top: 2px solid var(--color-border);
+}
+
+.value--positive {
+  color: var(--color-primary);
+  font-weight: 600;
+}
+
+.value--negative {
+  color: var(--color-danger);
+  font-weight: 600;
+}
+
+/* ==========================================================================
+   10. LOGIN
+   ========================================================================== */
+.login-page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--color-bg);
+}
+
+.login-card {
+  width: 100%;
+  max-width: 360px;
+}
+
+.login-card input {
+  width: 100%;
+  padding: 10px 12px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-border);
+  background-color: var(--color-surface-alt);
+  color: var(--color-text);
+  margin-bottom: 12px;
+  font-size: 14px;
+}
+
+.login-card .btn {
+  width: 100%;
+}
+
+.login-card__error {
+  color: var(--color-danger);
+  font-size: 13px;
+  margin-bottom: 12px;
+}
+
+/* ==========================================================================
+   11. DRAWER (painel lateral para Contas, Categorias e Lançamentos)
+   ========================================================================== */
+.drawer-overlay {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.45);
+  display: flex;
+  justify-content: flex-end;
+  z-index: 100;
+  animation: fadeIn 0.15s ease;
+}
+
+.drawer-panel {
+  width: 100%;
+  height: 100%;
+  background-color: var(--color-surface);
+  border-left: 1px solid var(--color-border);
+  display: flex;
+  flex-direction: column;
+  animation: slideIn 0.2s ease;
+}
+
+.drawer-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 24px;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.drawer-close {
+  background: transparent;
+  border: none;
+  color: var(--color-text-muted);
+  cursor: pointer;
+  padding: 6px;
+  border-radius: 8px;
+}
+
+.drawer-close:hover {
+  background-color: var(--color-surface-alt);
+  color: var(--color-text);
+}
+
+.drawer-body {
+  padding: 24px;
+  overflow-y: auto;
+  flex: 1;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideIn {
+  from { transform: translateX(24px); opacity: 0; }
+  to { transform: translateX(0); opacity: 1; }
+}
+
+/* ==========================================================================
+   12. FORMULÁRIOS (Contas, Categorias, Lançamentos)
+   ========================================================================== */
+.form-grid {
+  display: grid;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.form-field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.form-field label {
+  font-size: 12px;
+  color: var(--color-text-muted);
+  font-weight: 500;
+}
+
+.form-field input,
+.form-field select {
+  padding: 9px 12px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-border);
+  background-color: var(--color-surface-alt);
+  color: var(--color-text);
+  font-size: 14px;
+}
+
+.form-field input:focus,
+.form-field select:focus {
+  outline: none;
+  border-color: var(--color-primary);
+}
+
+.form-actions {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+}
+
+.type-toggle {
+  display: flex;
+  gap: 8px;
+}
+
+.type-toggle button {
+  flex: 1;
+  padding: 8px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-border);
+  background-color: var(--color-surface-alt);
+  color: var(--color-text-muted);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.type-toggle button.active[data-kind="income"] {
+  background-color: var(--color-primary);
+  border-color: var(--color-primary);
+  color: var(--color-text-inverse);
+}
+
+.type-toggle button.active[data-kind="expense"] {
+  background-color: var(--color-danger);
+  border-color: var(--color-danger);
+  color: var(--color-text-inverse);
+}
+
+/* ==========================================================================
+   13. FILTROS (barra de filtros da tabela de lançamentos)
+   ========================================================================== */
+.filters-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 16px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.filters-bar select,
+.filters-bar input {
+  padding: 7px 5px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-border);
+  background-color: var(--color-surface-alt);
+  color: var(--color-text);
+  font-size: 13px;
+}
+
+/* ==========================================================================
+   14. LISTA DE GERENCIAMENTO (linhas de contas/categorias/lançamentos com ações)
+   ========================================================================== */
+.manage-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.manage-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 12px;
+  border-radius: var(--radius-md);
+  background-color: var(--color-surface-alt);
+  font-size: 14px;
+}
+
+.manage-row__info {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.manage-row__dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.manage-row__actions {
+  display: flex;
+  gap: 6px;
+}
+
+.icon-btn {
+  background: transparent;
+  border: none;
+  color: var(--color-text-muted);
+  cursor: pointer;
+  padding: 6px;
+  border-radius: 8px;
+  display: flex;
+}
+
+.icon-btn:hover {
+  background-color: var(--color-border);
+  color: var(--color-text);
+}
+
+.icon-btn--danger:hover {
+  background-color: var(--color-danger-soft);
+  color: var(--color-danger);
+}
+
+.transactions-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+.transactions-table th {
+  text-align: left;
+  color: var(--color-text-muted);
+  font-weight: 500;
+  padding: 8px;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.transactions-table td {
+  padding: 10px 8px;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 8px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.badge--confirmed {
+  background-color: var(--color-danger-soft);
+  color: var(--color-primary);
+}
+
+.badge--pending {
+  background-color: var(--color-surface-alt);
+  color: var(--color-text-muted);
+  border: 1px dashed var(--color-border);
+}
+
+.empty-state {
+  text-align: center;
+  color: var(--color-text-muted);
+  font-size: 13px;
+  padding: 24px 0;
+}
+
+/* ==========================================================================
+   15. LOADING (ícone giratório usado na extração de comprovantes)
+   ========================================================================== */
+.spin {
+  animation: spin 0.9s linear infinite;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
