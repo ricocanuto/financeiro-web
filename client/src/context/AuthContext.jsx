@@ -39,6 +39,21 @@ export function AuthProvider({ children }) {
     await supabase.auth.signOut();
   }
 
+  // Dispara o e-mail de recuperação com um link que volta pro app na rota
+  // /reset-password, já autenticado com uma sessão temporária de recovery.
+  async function sendPasswordReset(email) {
+    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: `${window.location.origin}/reset-password`,
+    });
+    if (error) throw error;
+  }
+
+  // Usado na tela /reset-password, depois que o usuário clicou no link do e-mail
+  async function updatePassword(newPassword) {
+    const { error } = await supabase.auth.updateUser({ password: newPassword });
+    if (error) throw error;
+  }
+
   const value = {
     session,
     user: session?.user || null,
@@ -47,6 +62,8 @@ export function AuthProvider({ children }) {
     signIn,
     signUp,
     signOut,
+    sendPasswordReset,
+    updatePassword,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
