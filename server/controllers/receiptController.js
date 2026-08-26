@@ -1,7 +1,13 @@
+import mongoose from "mongoose";
 import sharp from "sharp";
 import Account from "../models/Account.js";
 import Category from "../models/Category.js";
 import { extractReceiptData } from "../services/geminiService.js";
+import { inMemoryStore } from "../services/inMemoryStore.js";
+
+function isDbConnected() {
+  return mongoose.connection && mongoose.connection.readyState === 1;
+}
 
 function normalize(str) {
   return (str || "")
@@ -42,23 +48,36 @@ export async function extractReceipt(req, res) {
 
     const extracted = await extractReceiptData(compressedBuffer, "image/jpeg");
 
-    const [categories, accounts] = await Promise.all([
-      Category.find({ userId: req.userId }),
-      Account.find({ userId: req.userId }),
-    ]);
+    let categories = [];
+    let accounts = [];
+
+    if (isDbConnected()) {
+      try {
+        [categories, accounts] = await Promise.all([
+          Category.find({ userId: req.userId }),
+          Account.find({ userId: req.userId }),
+        ]);
+      } catch {
+        categories = inMemoryStore.listCategories(req.userId);
+        accounts = inMemoryStore.listAccounts(req.userId);
+      }
+    } else {
+      categories = inMemoryStore.listCategories(req.userId);
+      accounts = inMemoryStore.listAccounts(req.userId);
+    }
 
     const matchedCategory = matchCategory(
       categories,
-      extracted.suggestedCategory,
+      extracted.suggestedCategory || extracted.category,
       extracted.type || "expense"
     );
 
     res.json({
       description: extracted.description || extracted.merchant || "",
-      amount: extracted.total ?? null,
+      amount: extracted.total ?? extracted.amount ?? null,
       date: extracted.date || new Date().toISOString().slice(0, 10),
       type: extracted.type === "income" ? "income" : "expense",
-      suggestedCategoryName: extracted.suggestedCategory || null,
+      suggestedCategoryName: extracted.suggestedCategory || extracted.category || null,
       categoryId: matchedCategory?._id || null,
       // Se só existir uma conta cadastrada, já sugere ela; senão o usuário escolhe
       accountId: accounts.length === 1 ? accounts[0]._id : null,
@@ -70,3 +89,4 @@ export async function extractReceipt(req, res) {
     });
   }
 }
+

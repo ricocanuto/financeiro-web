@@ -1,9 +1,12 @@
-import { GoogleGenerativeAI } from "@google/generative-ai";
-
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+import { GoogleGenAI } from "@google/genai";
 
 export async function extractReceiptData(imageBuffer, mimeType) {
-  const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
+  const apiKey = process.env.GEMINI_API_KEY;
+  if (!apiKey) {
+    throw new Error("GEMINI_API_KEY is not configured");
+  }
+
+  const ai = new GoogleGenAI({ apiKey });
 
   const prompt = `
     Analise esta imagem de comprovante/nota fiscal e extraia os seguintes dados em formato JSON puro:
@@ -11,21 +14,32 @@ export async function extractReceiptData(imageBuffer, mimeType) {
     - amount: valor total como número (ex: 45.90)
     - date: data no formato YYYY-MM-DD (se não houver, use a data de hoje)
     - category: uma sugestão simples de categoria (ex: Alimentação, Transporte, Saúde, Mercado, Lazer, Outros)
+    - suggestedCategory: a mesma sugestão de categoria acima
+    - total: o mesmo valor total numérico acima
+    - type: "expense" ou "income" (padrão: "expense")
 
     Responda EXCLUSIVAMENTE com o JSON válido, sem formatação markdown ou textos adicionais.
   `;
 
-  const imagePart = {
-    inlineData: {
-      data: imageBuffer.toString("base64"),
-      mimeType,
-    },
-  };
+  const response = await ai.models.generateContent({
+    model: "gemini-2.5-flash",
+    contents: [
+      {
+        role: "user",
+        parts: [
+          { text: prompt },
+          {
+            inlineData: {
+              data: imageBuffer.toString("base64"),
+              mimeType: mimeType || "image/jpeg",
+            },
+          },
+        ],
+      },
+    ],
+  });
 
-  const result = await model.generateContent([prompt, imagePart]);
-  const responseText = result.response.text().trim();
-  
-  // Limpa possíveis marcações de código markdown do JSON se o modelo retornar
+  const responseText = (response.text || "").trim();
   const cleanedJson = responseText.replace(/```json|```/g, "").trim();
 
   return JSON.parse(cleanedJson);
