@@ -28,7 +28,7 @@ app.use((err, _req, res, _next) => {
   res.status(500).json({ message: "Erro interno do servidor" });
 });
 
-const PORT = process.env.PORT || 4000;
+const PORT = process.env.PORT || 3000;
 
 connectDB().then(() => {
   app.listen(PORT, () => {
