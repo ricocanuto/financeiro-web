@@ -59,15 +59,11 @@ app.use((err, req, res, _next) => {
   res.status(500).json({ message: "Erro interno do servidor" });
 });
 
-<<<<<<< HEAD
+// Define a porta dinamicamente conforme injeção do Render
 const PORT = process.env.PORT || 3000;
-=======
-const PORT = 3000;
->>>>>>> 5f72c4f51682925e23d0c81a386281fde94ff9a0
 
 connectDB().then(() => {
   app.listen(PORT, "0.0.0.0", () => {
-    console.log(`[server] rodando em http://0.0.0.0:${PORT}`);
+    console.log(`[server] rodando na porta ${PORT}`);
   });
 });
-
