@@ -1,6 +1,8 @@
-import { useEffect, useMemo, useRef, useState } from "react";
-import { Plus, Pencil, Trash2, Camera, Loader2 } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
+import { Plus, Pencil, Trash2, QrCode, Loader2 } from "lucide-react";
 import { api } from "../../services/api";
+import QrScannerModal from "../QrScannerModal/QrScannerModal.jsx";
+import Money from "../Money/Money.jsx";
 
 function todayISO() {
   return new Date().toISOString().slice(0, 10);
@@ -21,10 +23,6 @@ const emptyForm = {
   confirmed: true,
 };
 
-function formatBRL(value) {
-  return value.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
-}
-
 export default function TransactionsManager({ onChanged }) {
   const [transactions, setTransactions] = useState([]);
   const [accounts, setAccounts] = useState([]);
@@ -42,7 +40,7 @@ export default function TransactionsManager({ onChanged }) {
     type: "",
   });
 
-  const fileInputRef = useRef(null);
+  const [scannerOpen, setScannerOpen] = useState(false);
   const [extracting, setExtracting] = useState(false);
   const [extractError, setExtractError] = useState("");
   const [suggestedCategoryName, setSuggestedCategoryName] = useState(null);
@@ -104,19 +102,14 @@ export default function TransactionsManager({ onChanged }) {
     setForm({ ...emptyForm, accountId: accounts[0]?._id || "" });
   }
 
-  async function handlePhotoSelected(e) {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
+  async function handleQrScanned(decodedText) {
+    setScannerOpen(false);
     setExtracting(true);
     setExtractError("");
     setSuggestedCategoryName(null);
 
     try {
-      const formData = new FormData();
-      formData.append("receipt", file);
-
-      const { data } = await api.post("/receipts/extract", formData);
+      const { data } = await api.post("/receipts/extract", { qrText: decodedText });
 
       setEditingId(null);
       setForm({
@@ -135,11 +128,10 @@ export default function TransactionsManager({ onChanged }) {
     } catch (err) {
       setExtractError(
         err.response?.data?.message ||
-          "Não foi possível ler o comprovante. Tente novamente ou preencha manualmente."
+          "Não foi possível ler os dados da nota a partir do QR Code. Tente novamente ou preencha manualmente."
       );
     } finally {
       setExtracting(false);
-      e.target.value = ""; // permite selecionar a mesma foto de novo, se preciso
     }
   }
 
@@ -172,26 +164,24 @@ export default function TransactionsManager({ onChanged }) {
     <div>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
         <p className="card__subtitle" style={{ margin: 0 }}>
-          Preencha manualmente ou envie a foto de um comprovante
+          Preencha manualmente ou escaneie o QR Code da nota fiscal
         </p>
         <button
           type="button"
           className="btn btn--ghost"
-          onClick={() => fileInputRef.current?.click()}
+          onClick={() => setScannerOpen(true)}
           disabled={extracting}
         >
-          {extracting ? <Loader2 size={16} className="spin" /> : <Camera size={16} />}
-          {extracting ? "Lendo comprovante..." : "Lançar por foto"}
+          {extracting ? <Loader2 size={16} className="spin" /> : <QrCode size={16} />}
+          {extracting ? "Lendo nota..." : "Lançar por QR Code"}
         </button>
-        <input
-          ref={fileInputRef}
-          type="file"
-          accept="image/*"
-          capture="environment"
-          style={{ display: "none" }}
-          onChange={handlePhotoSelected}
-        />
       </div>
+
+      <QrScannerModal
+        open={scannerOpen}
+        onClose={() => setScannerOpen(false)}
+        onScan={handleQrScanned}
+      />
 
       {extractError && <p className="login-card__error">{extractError}</p>}
       {suggestedCategoryName && (
@@ -376,11 +366,12 @@ export default function TransactionsManager({ onChanged }) {
                     {tx.confirmed ? "Confirmado" : "Projetado"}
                   </span>
                 </td>
-                <td
-                  style={{ textAlign: "right" }}
-                  className={tx.type === "income" ? "value--positive" : "value--negative"}
-                >
-                  {tx.type === "income" ? "+" : "-"}{formatBRL(tx.amount)}
+                <td style={{ textAlign: "right" }}>
+                  <Money
+                    value={tx.amount}
+                    prefix={tx.type === "income" ? "+" : "-"}
+                    className={tx.type === "income" ? "value--positive" : "value--negative"}
+                  />
                 </td>
                 <td>
                   <div className="manage-row__actions">

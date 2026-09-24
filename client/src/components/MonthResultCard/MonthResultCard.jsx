@@ -1,8 +1,5 @@
 import { BarChart, Bar, ResponsiveContainer, Cell } from "recharts";
-
-function formatBRL(value) {
-  return value.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
-}
+import Money from "../Money/Money.jsx";
 
 export default function MonthResultCard({ result }) {
   if (!result) return null;
@@ -31,11 +28,11 @@ export default function MonthResultCard({ result }) {
       <div style={{ display: "flex", flexDirection: "column", gap: 6, marginTop: 8, fontSize: 13 }}>
         <div style={{ display: "flex", justifyContent: "space-between" }}>
           <span>● Receitas</span>
-          <span className="value--positive">{formatBRL(result.income)}</span>
+          <Money value={result.income} className="value--positive" />
         </div>
         <div style={{ display: "flex", justifyContent: "space-between" }}>
           <span>● Despesas</span>
-          <span className="value--negative">{formatBRL(result.expense)}</span>
+          <Money value={result.expense} className="value--negative" />
         </div>
       </div>
 
@@ -50,7 +47,7 @@ export default function MonthResultCard({ result }) {
         }}
       >
         <span>Resultado</span>
-        <span>{formatBRL(result.result)}</span>
+        <Money value={result.result} />
       </div>
     </div>
   );

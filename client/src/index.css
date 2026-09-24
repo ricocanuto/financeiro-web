@@ -744,3 +744,60 @@ body {
     padding: 16px;
   }
 }
+
+/* ==========================================================================
+   17. SCANNER DE QR CODE
+   ========================================================================== */
+.qr-scanner-panel {
+  width: 100%;
+  max-width: 420px;
+  margin: auto;
+  height: 100%;
+  background-color: var(--color-surface);
+  border-left: 1px solid var(--color-border);
+  display: flex;
+  flex-direction: column;
+  animation: slideIn 0.2s ease;
+}
+
+.qr-scanner-body {
+  padding: 24px;
+}
+
+.qr-scanner-viewport {
+  width: 100%;
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  background-color: #000;
+  min-height: 280px;
+}
+
+/* A biblioteca html5-qrcode injeta o <video> e os controles dela mesma
+   dentro do container acima — deixamos a imagem preencher a largura. */
+.qr-scanner-viewport video {
+  width: 100% !important;
+}
+
+/* ==========================================================================
+   18. MOSTRAR/OCULTAR VALORES
+   ========================================================================== */
+.values-toggle {
+  background: transparent;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  color: var(--color-text-muted);
+  cursor: pointer;
+  padding: 9px 10px;
+  display: flex;
+  align-items: center;
+}
+
+.values-toggle:hover {
+  background-color: var(--color-surface-alt);
+  color: var(--color-text);
+}
+
+.money--hidden {
+  letter-spacing: 1px;
+  color: var(--color-text-muted) !important;
+}

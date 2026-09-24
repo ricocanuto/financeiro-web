@@ -10,6 +10,7 @@
   "dependencies": {
     "@supabase/supabase-js": "^2.45.4",
     "axios": "^1.7.4",
+    "html5-qrcode": "^2.3.8",
     "lucide-react": "^0.436.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
@@ -19,5 +20,8 @@
   "devDependencies": {
     "@vitejs/plugin-react": "^4.3.1",
     "vite": "^5.4.1"
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": ["esbuild"]
   }
 }

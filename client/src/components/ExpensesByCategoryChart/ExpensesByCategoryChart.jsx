@@ -1,10 +1,11 @@
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from "recharts";
-
-function formatBRL(value) {
-  return value.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
-}
+import Money from "../Money/Money.jsx";
+import { useValuesVisibility } from "../../context/ValuesVisibilityContext.jsx";
+import { formatBRL } from "../../utils/formatCurrency";
 
 export default function ExpensesByCategoryChart({ data }) {
+  const { hidden } = useValuesVisibility();
+
   return (
     <div className="card">
       <h3 className="card__title">Despesas por categoria</h3>
@@ -25,7 +26,7 @@ export default function ExpensesByCategoryChart({ data }) {
                 <Cell key={entry.categoryId || index} fill={entry.color} />
               ))}
             </Pie>
-            <Tooltip formatter={(value) => formatBRL(value)} />
+            <Tooltip formatter={(value) => (hidden ? "R$ ••••" : formatBRL(value))} />
           </PieChart>
         </ResponsiveContainer>
       </div>
@@ -48,7 +49,7 @@ export default function ExpensesByCategoryChart({ data }) {
               />
               {entry.name} {entry.percentage.toFixed(1)}%
             </span>
-            <span className="value--negative">-{formatBRL(entry.total)}</span>
+            <Money value={entry.total} className="value--negative" prefix="-" />
           </div>
         ))}
       </div>

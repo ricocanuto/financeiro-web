@@ -1,6 +1,7 @@
 import { useEffect, useState, useCallback } from "react";
-import { Plus } from "lucide-react";
+import { Plus, Eye, EyeOff } from "lucide-react";
 import { api } from "../../services/api";
+import { useValuesVisibility } from "../../context/ValuesVisibilityContext.jsx";
 import Sidebar from "../../components/Sidebar/Sidebar.jsx";
 import AccountCard from "../../components/AccountCard/AccountCard.jsx";
 import CashFlowChart from "../../components/CashFlowChart/CashFlowChart.jsx";
@@ -16,6 +17,7 @@ function currentMonth() {
 }
 
 export default function Dashboard() {
+  const { hidden, toggleHidden } = useValuesVisibility();
   const [balances, setBalances] = useState(null);
   const [cashFlow, setCashFlow] = useState([]);
   const [expensesByCategory, setExpensesByCategory] = useState([]);
@@ -61,13 +63,24 @@ export default function Dashboard() {
       />
 
       <main className="dashboard-content">
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+        <div className="dashboard-header">
           <h1 className="card__title" style={{ fontSize: 22 }}>
             Visão geral
           </h1>
-          <button className="btn btn--primary" onClick={() => setOpenDrawer("transactions")}>
-            <Plus size={16} /> Novo lançamento
-          </button>
+          <div style={{ display: "flex", gap: 8 }}>
+            <button
+              type="button"
+              className="values-toggle"
+              onClick={toggleHidden}
+              aria-label={hidden ? "Mostrar valores" : "Ocultar valores"}
+              title={hidden ? "Mostrar valores" : "Ocultar valores"}
+            >
+              {hidden ? <EyeOff size={16} /> : <Eye size={16} />}
+            </button>
+            <button className="btn btn--primary" onClick={() => setOpenDrawer("transactions")}>
+              <Plus size={16} /> Novo lançamento
+            </button>
+          </div>
         </div>
 
         {loading ? (

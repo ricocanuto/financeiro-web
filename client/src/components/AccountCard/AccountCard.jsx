@@ -1,9 +1,4 @@
-function formatBRL(value) {
-  return value.toLocaleString("pt-BR", {
-    style: "currency",
-    currency: "BRL",
-  });
-}
+import Money from "../Money/Money.jsx";
 
 export default function AccountCard({ balances }) {
   if (!balances) return null;
@@ -26,11 +21,17 @@ export default function AccountCard({ balances }) {
           {accounts.map((acc) => (
             <tr key={acc.accountId}>
               <td>{acc.name}</td>
-              <td className={acc.confirmedBalance >= 0 ? "value--positive" : "value--negative"}>
-                {formatBRL(acc.confirmedBalance)}
+              <td>
+                <Money
+                  value={acc.confirmedBalance}
+                  className={acc.confirmedBalance >= 0 ? "value--positive" : "value--negative"}
+                />
               </td>
-              <td className={acc.projectedBalance >= 0 ? "value--positive" : "value--negative"}>
-                {formatBRL(acc.projectedBalance)}
+              <td>
+                <Money
+                  value={acc.projectedBalance}
+                  className={acc.projectedBalance >= 0 ? "value--positive" : "value--negative"}
+                />
               </td>
             </tr>
           ))}
@@ -38,11 +39,17 @@ export default function AccountCard({ balances }) {
         <tfoot>
           <tr>
             <td>Total</td>
-            <td className={totals.confirmed >= 0 ? "value--positive" : "value--negative"}>
-              {formatBRL(totals.confirmed)}
+            <td>
+              <Money
+                value={totals.confirmed}
+                className={totals.confirmed >= 0 ? "value--positive" : "value--negative"}
+              />
             </td>
-            <td className={totals.projected >= 0 ? "value--positive" : "value--negative"}>
-              {formatBRL(totals.projected)}
+            <td>
+              <Money
+                value={totals.projected}
+                className={totals.projected >= 0 ? "value--positive" : "value--negative"}
+              />
             </td>
           </tr>
         </tfoot>
